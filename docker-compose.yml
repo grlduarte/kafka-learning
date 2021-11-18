@@ -1,0 +1,117 @@
+version: '3'
+
+services:
+
+  # setting up the producer that writes random numbers
+  # to the topic quickstart
+  producer:
+    image: python-producer
+    container_name: producer
+    depends_on:
+      - broker
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile
+
+
+  # zookeeper is, well, it holds the zoo in one piece
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    restart: always
+    hostname: zookeeper
+    container_name: zookeeper0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181 # this port is kind of default (docs) for zp
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # brokers are the core of kafka, topics are stored in here
+  # also you could have several brokers
+  broker:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    hostname: broker
+    container_name: broker0
+    ports:
+      - 9092:9092
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # schema registry holds the information about what type of
+  # data are passed within each topic
+  # here it is only started, but not set up
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    hostname: schema-registry
+    container_name: schema-registry0
+    depends_on:
+      - zookeeper
+      - broker
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9092
+
+  # control center is this cool feature that lets you
+  # see all the brokers, topics, consumers and messages
+  # goin on, accessed on localhost:9021
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
+    hostname: control-center
+    container_name: control-center0
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - 9021:9021
+    expose:
+      - 9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: broker:9092
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: schema-registry:8081
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
+  kafka-setup:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-setup
+    depends_on:
+      - broker
+      - zookeeper
+    # this command will create the topic called quickstart
+    # containing 1 partition with a replication factor of 1
+    # it could be repeated for any topics would like to be
+    # pre created
+    command: >
+      bash -c "echo Waiting for the broker to be ready... &&
+               cub kafka-ready -b broker:9092 1 30 && 
+               kafka-topics --bootstrap-server broker:9092 \
+               --create --if-not-exists \
+               --partitions 1 \
+               --replication-factor 1 \
+               --topic quickstart"
+
+  database:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      TZ: "America/Sao_Paulo"
+      # default user name: postgres
+      POSTGRES_PASSWORD: "pass"
+    ports:
+      - 25432:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./data/create-tables.sql:/docker-entrypoint-initdb.d/database.sql
