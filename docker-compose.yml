@@ -7,11 +7,13 @@ services:
   producer:
     image: python-producer
     container_name: producer
-    depends_on:
-      - kafka-topics
     build:
       context: ./kafka-python
       dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./kafka-python
+        target: /scripts
 
   # zookeeper is, well, it holds the zoo in one piece
   zookeeper:
@@ -66,7 +68,6 @@ services:
   connect:
     restart: always
     image: confluentinc/cp-kafka-connect-base:latest
-    #image: kafka-jdbc:latest
     hostname: connect
     container_name: connect
     depends_on:
@@ -145,9 +146,11 @@ services:
                --replication-factor 1 \
                --topic quickstart-events"
 
-  database:
+  postgres-database:
     image: postgres:latest
+    hostname: postgres
     container_name: postgres
+    restart: always
     environment:
       TZ: "America/Sao_Paulo"
       # default user name: postgres
