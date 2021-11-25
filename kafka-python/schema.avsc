@@ -1,0 +1,15 @@
+{
+  "namespace": "kafkalearning.avro",
+  "type": "record",
+  "name": "event",
+  "fields": [
+    {
+      "name": "id",
+      "type": "long"
+    },
+    {
+      "name": "value",
+      "type": "int"
+    }
+  ]
+}
