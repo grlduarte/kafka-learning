@@ -10,6 +10,7 @@ services:
     build:
       context: ./kafka-python
       dockerfile: Dockerfile
+    command: "python3 producer.py"
     volumes:
       - type: bind
         source: ./kafka-python
@@ -65,6 +66,10 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
+  # using the connect-base image is lightweight when
+  # compared to using kafka-connect for example.
+  # the connectors are downloaded and created in
+  # the launch.sh script.
   connect:
     restart: always
     image: confluentinc/cp-kafka-connect-base:latest
@@ -137,6 +142,8 @@ services:
     # containing 1 partition with a replication factor of 1
     # it could be repeated for any topics would like to be
     # pre created
+    # confluent utility belt (cub) kafka-ready holds the
+    # sh until kafka is ready for topics creation
     command: >
       bash -c "echo Waiting for the broker to be ready... &&
                cub kafka-ready -b broker:9092 1 90 && 
@@ -158,5 +165,5 @@ services:
     ports:
       - 25432:5432
     volumes:
-      - ./db/postgres:/var/lib/postgresql/data
+      #- ./db/postgres:/var/lib/postgresql/data
       - ./db/create-tables.sql:/docker-entrypoint-initdb.d/database.sql

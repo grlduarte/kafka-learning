@@ -2,7 +2,7 @@
   "name": "JdbcSinkLocalPostgres",
   "config": {
       "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
-      "connection.url": "jdbc:postgresql://database:5432/postgres",
+      "connection.url": "jdbc:postgresql://postgres:5432/postgres",
       "connection.user": "postgres",
       "connection.password": "pass",
       "table.name.format": "quickstart-events",
