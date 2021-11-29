@@ -1,0 +1,15 @@
+{
+  "name": "JdbcSinkLocalPostgres",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://postgres:5432/postgres",
+    "connection.user": "postgres",
+    "connection.password": "pass",
+    "table.name.format": "quickstart-sink",
+    "db.timezone": "America/Sao_Paulo",
+    "auto.create": "true",
+    "topics": "quickstart-events",
+    "value.converter.schema.registry.url": "http://schema-registry:8081", 
+    "value.converter": "io.confluent.connect.avro.AvroConverter"
+  }
+}

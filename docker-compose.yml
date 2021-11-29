@@ -4,17 +4,17 @@ services:
 
   # setting up the producer that writes random numbers
   # to the topic quickstart
-  producer:
-    image: python-producer
-    container_name: producer
-    build:
-      context: ./kafka-python
-      dockerfile: Dockerfile
-    command: "python3 producer.py"
-    volumes:
-      - type: bind
-        source: ./kafka-python
-        target: /scripts
+#  producer:
+#    image: python-producer
+#    container_name: producer
+#    build:
+#      context: ./kafka-python
+#      dockerfile: Dockerfile
+#    command: "python3 producer.py"
+#    volumes:
+#      - type: bind
+#        source: ./kafka-python
+#        target: /scripts
 
   # zookeeper is, well, it holds the zoo in one piece
   zookeeper:
@@ -165,5 +165,24 @@ services:
     ports:
       - 25432:5432
     volumes:
-      #- ./db/postgres:/var/lib/postgresql/data
+      - ./db/postgres:/var/lib/postgresql/data
       - ./db/create-tables.sql:/docker-entrypoint-initdb.d/database.sql
+
+  mssql-database:
+    image: mcr.microsoft.com/mssql/server
+    container_name: mssql
+    restart: always
+    environment:
+      SA_PASSWORD: "Pass123!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - 1433:1433
+    volumes:
+      - type: bind
+        source: ./bak/
+        target: /home/
+      - mssql_volume:/var/opt/mssql
+
+volumes:
+  mssql_volume: {}

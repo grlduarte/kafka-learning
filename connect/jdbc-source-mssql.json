@@ -1,0 +1,14 @@
+{
+  "name": "JdbcSourceMsSql",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "connection.url": "jdbc:sqlserver://mssql:1433;database=IWSLogger;username=sa;password=Pass123!",
+    "query": "SELECT * FROM dbo.[quickstart-source]",
+    "mode": "incrementing",
+    "topic.prefix": "quickstart-events",
+    "incrementing.column.name": "id",
+    "db.timezone": "America/Sao_Paulo"
+  }
+}

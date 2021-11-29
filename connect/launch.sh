@@ -14,36 +14,31 @@ dub wait connect 8083 180 &&
 echo Kafka Connect is up! &&
 
 # while initializing, the address may return
-# a 404, in that case, just try again.
-# if after 5 attempts it still can't connect,
-# then maybe something else is wrong.
-echo Creating JDBC connector... &&
-attempts=0
-while [ $attempts -le 5 ]
+# a 404 or 500, in that case, just try again.
+code=$(curl -s -w '%{http_code}' -o /dev/null \
+       http://connect:8083/connectors/)
+while [ $code -ne 200 ]
 do
+  # wait until the page responds
+  sleep 5
   code=$(curl -s -w '%{http_code}' -o /dev/null \
-         -i -X POST -H 'Accept:application/json' \
-         -H 'Content-Type:application/json' \
-         http://connect:8083/connectors/ \
-         -d @/connect/register-sink.json)
-  if [ $code -eq 201 ]
-  then
-    # http code 201 -> created
-    echo JDBC connector is up!
-    break
-  elif [ $code -eq 409 ]
-  then
-    # http code 409 -> conflict
-    echo 409: Connector already exists!
-    break
-  elif [ $attempts -eq 5 ]
-  then
-    echo "Unable to create the connector: error $code"
-    break
-  else
-    attempts=$(( attempts+1 ))
-    sleep 5
-  fi
+         http://connect:8083/connectors/)
 done
+
+echo Creating JDBC connectors... &&
+# once the page is responding we can 
+# create the sink connector
+curl -i -X POST \
+     -H 'Accept:application/json' \
+     -H 'Content-Type:application/json' \
+     http://connect:8083/connectors/ \
+     -d @/connect/jdbc-sink-postgres.json
+
+# and now the source connector
+curl -i -X POST \
+     -H 'Accept:application/json' \
+     -H 'Content-Type:application/json' \
+     http://connect:8083/connectors/ \
+     -d @/connect/jdbc-source-mssql.json
 
 sleep infinity
