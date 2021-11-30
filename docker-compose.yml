@@ -179,9 +179,6 @@ services:
     ports:
       - 1433:1433
     volumes:
-      - type: bind
-        source: ./bak/
-        target: /home/
       - mssql_volume:/var/opt/mssql
 
 volumes:
