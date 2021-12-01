@@ -1,9 +1,7 @@
-version: '3'
-
+version: "3"
 services:
-
-  # setting up the producer that writes random numbers
-  # to the topic quickstart
+### setting up the producer that writes random numbers ###
+### to the topic quickstart                            ###
 #  producer:
 #    image: python-producer
 #    container_name: producer
@@ -16,7 +14,7 @@ services:
 #        source: ./kafka-python
 #        target: /scripts
 
-  # zookeeper is, well, it holds the zoo in one piece
+  ### zookeeper is, well, it holds the zoo in one piece ###
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     restart: always
@@ -81,7 +79,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker:9092'
+      CONNECT_BOOTSTRAP_SERVERS: "broker:9092"
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083 
       CONNECT_GROUP_ID: compose-connect-group
@@ -97,7 +95,7 @@ services:
       CONNECT_STATUS_STORAGE_PARTITIONS: 1
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes:
@@ -125,7 +123,7 @@ services:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: broker:9092
       CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      CONTROL_CENTER_CONNECT_JDBC_CLUSTER: 'http://connect:8083'
+      CONTROL_CENTER_CONNECT_JDBC_CLUSTER: "http://connect:8083"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
