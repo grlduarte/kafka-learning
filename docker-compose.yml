@@ -1,9 +1,7 @@
-version: '3'
-
+version: "3"
 services:
-
-  # setting up the producer that writes random numbers
-  # to the topic quickstart
+### setting up the producer that writes random numbers
+### to the topic quickstart.
 #  producer:
 #    image: python-producer
 #    container_name: producer
@@ -16,7 +14,7 @@ services:
 #        source: ./kafka-python
 #        target: /scripts
 
-  # zookeeper is, well, it holds the zoo in one piece
+  ### zookeeper is, well, it holds the zoo in one piece.
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     restart: always
@@ -28,8 +26,8 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181 # this port is kind of default (docs) for zp
       ZOOKEEPER_TICK_TIME: 2000
 
-  # brokers are the core of kafka, topics are stored in here
-  # also you could have several brokers
+  ### brokers are the core of kafka, topics are stored in here
+  ### also you could have several brokers.
   broker:
     image: confluentinc/cp-kafka:latest
     restart: always
@@ -50,9 +48,9 @@ services:
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
 
-  # schema registry holds the information about what type of
-  # data are passed within each topic
-  # here it is only started, but not set up
+  ### schema registry holds the information about what type of
+  ### data are passed within each topic
+  ### here it is only started, but not set up.
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
     hostname: schema-registry
@@ -66,10 +64,10 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
-  # using the connect-base image is lightweight when
-  # compared to using kafka-connect for example.
-  # the connectors are downloaded and created in
-  # the launch.sh script.
+  ### using the connect-base image is lightweight when
+  ### compared to using kafka-connect for example.
+  ### the connectors are downloaded and created in
+  ### the 'launch.sh' script.
   connect:
     restart: always
     image: confluentinc/cp-kafka-connect-base:latest
@@ -81,7 +79,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker:9092'
+      CONNECT_BOOTSTRAP_SERVERS: "broker:9092"
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083 
       CONNECT_GROUP_ID: compose-connect-group
@@ -97,7 +95,7 @@ services:
       CONNECT_STATUS_STORAGE_PARTITIONS: 1
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes:
@@ -106,9 +104,9 @@ services:
         target: /connect
     command: "bash /connect/launch.sh"
 
-  # control center is this cool feature that lets you
-  # see all the brokers, topics, consumers and messages
-  # goin on, accessed on localhost:9021
+  ### control center is this cool feature that lets you
+  ### see all the brokers, topics, consumers and messages
+  ### goin on, accessed on 'localhost:9021'.
   control-center:
     image: confluentinc/cp-enterprise-control-center:latest
     hostname: control-center
@@ -125,7 +123,7 @@ services:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: broker:9092
       CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      CONTROL_CENTER_CONNECT_JDBC_CLUSTER: 'http://connect:8083'
+      CONTROL_CENTER_CONNECT_JDBC_CLUSTER: "http://connect:8083"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
@@ -138,12 +136,12 @@ services:
     depends_on:
       - broker
       - zookeeper
-    # this command will create the topic called quickstart
-    # containing 1 partition with a replication factor of 1
-    # it could be repeated for any topics would like to be
-    # pre created
-    # confluent utility belt (cub) kafka-ready holds the
-    # sh until kafka is ready for topics creation
+    ### this command will create the topic called quickstart
+    ### containing 1 partition with a replication factor of 1.
+    ### it could be repeated for any topics would like to be
+    ### pre created.
+    ### confluent utility belt (cub) kafka-ready holds the
+    ### sh until kafka is ready for topics creation.
     command: >
       bash -c "echo Waiting for the broker to be ready... &&
                cub kafka-ready -b broker:9092 1 90 && 
@@ -160,7 +158,7 @@ services:
     restart: always
     environment:
       TZ: "America/Sao_Paulo"
-      # default user name: postgres
+      ### default user name: postgres
       POSTGRES_PASSWORD: "pass"
     ports:
       - 25432:5432
@@ -173,6 +171,7 @@ services:
     container_name: mssql
     restart: always
     environment:
+      ### default user name: sa
       SA_PASSWORD: "Pass123!"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
