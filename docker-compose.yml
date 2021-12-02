@@ -116,7 +116,7 @@ services:
       - schema-registry
       - connect
     ports:
-      - 9021:9021
+      - "9021:9021"
     expose:
       - 9021
     environment:
@@ -161,7 +161,7 @@ services:
       ### default user name: postgres
       POSTGRES_PASSWORD: "pass"
     ports:
-      - 25432:5432
+      - "15432:5432"
     volumes:
       - ./db/postgres:/var/lib/postgresql/data
       - ./db/create-tables.sql:/docker-entrypoint-initdb.d/database.sql
@@ -176,7 +176,7 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
     ports:
-      - 1433:1433
+      - "1433:1433"
     volumes:
       - mssql_volume:/var/opt/mssql
 
